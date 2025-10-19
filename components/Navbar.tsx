@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   NavigationMenu,
@@ -17,9 +18,26 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "./ui/input-group";
-import { Fish, Sunset, Ship, Search, ShoppingCart, Globe } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+} from "./ui/sheet";
+import {
+  Fish,
+  Sunset,
+  Ship,
+  Search,
+  ShoppingCart,
+  Globe,
+  Menu,
+} from "lucide-react";
+import { Separator } from "./ui/separator";
+import { Toggle } from "./ui/toggle";
 
-import {useState} from "react";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 const navLinks = [
   { href: "/about", label: "About" },
@@ -27,22 +45,42 @@ const navLinks = [
 ];
 
 const serviceItems = [
-  { href: "/tours/sport-fishing", label: "Sport Fishing", icon: <Fish /> },
   {
-    href: "/tours/sunset-ballena",
-    label: "Sunset & Ballena",
-    icon: <Sunset />,
+    href: "/sport-fishing",
+    label: "Sport Fishing",
+    icon: <Fish aria-hidden="true" />,
   },
   {
-    href: "/tours/yacht-chartering",
+    href: "/sunset-ballena",
+    label: "Sunset & Ballena",
+    icon: <Sunset aria-hidden="true" />,
+  },
+  {
+    href: "/yacht-chartering",
     label: "Yacht Chartering",
-    icon: <Ship />,
+    icon: <Ship aria-hidden="true" />,
   },
 ];
 
 function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  useEffect(() => {
+    if (!isMobile && isOpen) {
+      setIsOpen(false);
+    }
+  }, [isMobile, isOpen]);
+
+  const handleLinkClick = () => {
+    setIsOpen(false);
+  };
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-4 p-4 bg-background">
+    <nav
+      aria-label="Main navigation"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-4 p-4 bg-background"
+    >
       {/* Logo */}
       <NavigationMenu>
         <NavigationMenuList>
@@ -58,23 +96,25 @@ function Navbar() {
       </NavigationMenu>
 
       {/* Navigation Links */}
-      <NavigationMenu viewport={false} className="hidden md:flex">
-        <NavigationMenuList>
+      <NavigationMenu viewport={false}>
+        <NavigationMenuList className="gap-2">
           <NavigationMenuItem>
             {/* Search Bar */}
             <InputGroup className="flex-1">
-              <InputGroupInput placeholder="Search..." />
+              <InputGroupInput placeholder="Search..." aria-label="Search" />
               <InputGroupAddon>
-                <Search />
+                <Search aria-hidden="true" />
               </InputGroupAddon>
               <InputGroupAddon align="inline-end">
-                <InputGroupButton>Search</InputGroupButton>
+                <InputGroupButton aria-label="Submit search">
+                  Search
+                </InputGroupButton>
               </InputGroupAddon>
             </InputGroup>
           </NavigationMenuItem>
           {/* Tours Dropdown */}
-          <NavigationMenuItem>
-            <NavigationMenuTrigger>Tours</NavigationMenuTrigger>
+          <NavigationMenuItem className="hidden md:block">
+            <NavigationMenuTrigger>Services</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="w-max">
                 {serviceItems.map((item) => (
@@ -82,7 +122,7 @@ function Navbar() {
                     <NavigationMenuLink asChild>
                       <Link
                         href={item.href}
-                        className="flex-row items-center gap-2"
+                        className="flex flex-row items-center gap-2"
                       >
                         {item.icon}
                         <span>{item.label}</span>
@@ -96,7 +136,7 @@ function Navbar() {
 
           {/* About & Contact Links */}
           {navLinks.map((link) => (
-            <NavigationMenuItem key={link.href}>
+            <NavigationMenuItem key={link.href} className="hidden md:block">
               <NavigationMenuLink
                 asChild
                 className={navigationMenuTriggerStyle()}
@@ -107,20 +147,89 @@ function Navbar() {
           ))}
 
           {/* Divider */}
-          <NavigationMenuItem>
+          <NavigationMenuItem className="hidden md:block">
             <div className="h-[1.4375rem] w-0.5 rounded-full bg-muted" />
           </NavigationMenuItem>
 
           {/* Action Buttons */}
-          <NavigationMenuItem>
-            <Button variant="ghost" size="icon">
-              <Globe />
+          <NavigationMenuItem className="hidden md:block">
+            <Toggle disabled aria-label="Change language">
+              <Globe aria-hidden="true" />
+            </Toggle>
+          </NavigationMenuItem>
+          <NavigationMenuItem className="hidden md:block">
+            <Button size="icon" aria-label="View shopping cart">
+              <ShoppingCart aria-hidden="true" />
             </Button>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Button variant="ghost" size="icon">
-              <ShoppingCart />
-            </Button>
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="flex md:hidden"
+                  aria-label="Open navigation menu"
+                >
+                  <Menu aria-hidden="true" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] p-2">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <ul className="mt-8 space-y-4">
+                  {serviceItems.map((item) => (
+                    <li key={item.href}>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href={item.href}
+                          className="flex flex-row items-center gap-2 text-lg"
+                          onClick={handleLinkClick}
+                        >
+                          {item.icon}
+                          <span>{item.label}</span>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                  ))}
+                  <li>
+                    <Separator className="my-4" />
+                  </li>
+                  {navLinks.map((link) => (
+                    <li key={link.href}>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href={link.href}
+                          className="flex flex-row items-center gap-2 text-lg"
+                          onClick={handleLinkClick}
+                        >
+                          {link.label}
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                  ))}
+                  <li>
+                    <Separator className="my-4" />
+                  </li>
+                  <li>
+                    <Toggle disabled aria-label="Change language" className="w-full justify-start">
+                      <Globe aria-hidden="true" />
+                      Change Language
+                    </Toggle>
+                  </li>
+                  <li>
+                    <Button
+                      className="w-full justify-start"
+                      aria-label="View shopping cart"
+                    >
+                      <ShoppingCart aria-hidden="true" />
+                      My Cart
+                    </Button>
+                  </li>
+                </ul>
+              </SheetContent>
+            </Sheet>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
