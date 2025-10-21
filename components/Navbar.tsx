@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
+import { useMediaQuery } from "@/hooks/use-media-query";
+
 import Link from "next/link";
+import Image from "next/image";
+
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -25,42 +30,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from "./ui/sheet";
-import {
-  Fish,
-  Sunset,
-  Ship,
-  Search,
-  ShoppingCart,
-  Globe,
-  Menu,
-} from "lucide-react";
 import { Separator } from "./ui/separator";
 import { Toggle } from "./ui/toggle";
 
-import { useMediaQuery } from "@/hooks/use-media-query";
+import { Search, ShoppingCart, Globe, Menu } from "lucide-react";
 
-const navLinks = [
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-];
-
-const serviceItems = [
-  {
-    href: "/sport-fishing",
-    label: "Sport Fishing",
-    icon: <Fish aria-hidden="true" />,
-  },
-  {
-    href: "/sunset-ballena",
-    label: "Sunset & Ballena",
-    icon: <Sunset aria-hidden="true" />,
-  },
-  {
-    href: "/yacht-chartering",
-    label: "Yacht Chartering",
-    icon: <Ship aria-hidden="true" />,
-  },
-];
+import { SERVICE_ITEMS, NAV_LINKS } from "@/constants";
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -87,7 +62,15 @@ function Navbar() {
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
               <Link href="/" className="flex flex-row items-center gap-2">
-                <div className="h-4 w-4 bg-muted" />
+                <div className="h-4 w-4">
+                  <Image
+                    src="/images/logo.png"
+                    alt="Logo"
+                    width={24}
+                    height={24}
+                    className="object-contain"
+                  />
+                </div>
                 <span className="font-medium">Cabovibes</span>
               </Link>
             </NavigationMenuLink>
@@ -117,25 +100,28 @@ function Navbar() {
             <NavigationMenuTrigger>Services</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="w-max">
-                {serviceItems.map((item) => (
-                  <li key={item.href}>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        href={item.href}
-                        className="flex flex-row items-center gap-2"
-                      >
-                        {item.icon}
-                        <span>{item.label}</span>
-                      </Link>
-                    </NavigationMenuLink>
-                  </li>
-                ))}
+                {SERVICE_ITEMS.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.href}>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href={item.href}
+                          className="flex flex-row items-center gap-2"
+                        >
+                          <Icon aria-hidden="true" />
+                          <span>{item.label}</span>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                  );
+                })}
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
 
           {/* About & Contact Links */}
-          {navLinks.map((link) => (
+          {NAV_LINKS.map((link) => (
             <NavigationMenuItem key={link.href} className="hidden md:block">
               <NavigationMenuLink
                 asChild
@@ -179,24 +165,27 @@ function Navbar() {
                   <SheetTitle>Menu</SheetTitle>
                 </SheetHeader>
                 <ul className="mt-8 space-y-4">
-                  {serviceItems.map((item) => (
-                    <li key={item.href}>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href={item.href}
-                          className="flex flex-row items-center gap-2 text-lg"
-                          onClick={handleLinkClick}
-                        >
-                          {item.icon}
-                          <span>{item.label}</span>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                  ))}
+                  {SERVICE_ITEMS.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <li key={item.href}>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            href={item.href}
+                            className="flex flex-row items-center gap-2 text-lg"
+                            onClick={handleLinkClick}
+                          >
+                            <Icon aria-hidden="true" />
+                            <span>{item.label}</span>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    );
+                  })}
                   <li>
                     <Separator className="my-4" />
                   </li>
-                  {navLinks.map((link) => (
+                  {NAV_LINKS.map((link) => (
                     <li key={link.href}>
                       <NavigationMenuLink asChild>
                         <Link
@@ -213,7 +202,11 @@ function Navbar() {
                     <Separator className="my-4" />
                   </li>
                   <li>
-                    <Toggle disabled aria-label="Change language" className="w-full justify-start">
+                    <Toggle
+                      disabled
+                      aria-label="Change language"
+                      className="w-full justify-start"
+                    >
                       <Globe aria-hidden="true" />
                       Change Language
                     </Toggle>
