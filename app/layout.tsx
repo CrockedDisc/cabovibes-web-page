@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   creator: "Cabovibes",
   publisher: "Cabovibes",
   
-  metadataBase: new URL("https://www.cabovibes.com"), // Change this
+  metadataBase: new URL("https://www.cabovibes.tours"), // Change this
   alternates: {
     canonical: "/",
     languages: {
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://www.cabovibes.com",
+    url: "https://www.cabovibes.tours",
     siteName: "Cabovibes",
     title: "Cabovibes | Los Cabos Yacht Tours & Sport Fishing",
     description:

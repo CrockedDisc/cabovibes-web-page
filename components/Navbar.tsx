@@ -81,20 +81,6 @@ function Navbar() {
       {/* Navigation Links */}
       <NavigationMenu viewport={false}>
         <NavigationMenuList className="gap-2">
-          <NavigationMenuItem>
-            {/* Search Bar */}
-            <InputGroup className="flex-1">
-              <InputGroupInput placeholder="Search..." aria-label="Search" />
-              <InputGroupAddon>
-                <Search aria-hidden="true" />
-              </InputGroupAddon>
-              <InputGroupAddon align="inline-end">
-                <InputGroupButton aria-label="Submit search">
-                  Search
-                </InputGroupButton>
-              </InputGroupAddon>
-            </InputGroup>
-          </NavigationMenuItem>
           {/* Tours Dropdown */}
           <NavigationMenuItem className="hidden md:block">
             <NavigationMenuTrigger>Services</NavigationMenuTrigger>
