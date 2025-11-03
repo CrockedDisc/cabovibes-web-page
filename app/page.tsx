@@ -205,7 +205,7 @@ export default function Home() {
             <div className="text-left text-background px-4 flex flex-row gap-4 items-center justify-between">
               <h2
                 id="cta"
-                className="text-xl sm:text-3xl md:text-5xl font-bold"
+                className="text-lg sm:text-3xl md:text-5xl font-bold"
               >
                 Discover Your Dream Vacation
               </h2>

@@ -15,6 +15,13 @@
       "when": 1761846563759,
       "tag": "0001_fast_firedrake",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1761964875932,
+      "tag": "0002_skinny_boomer",
+      "breakpoints": true
     }
   ]
 }

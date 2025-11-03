@@ -1,0 +1,13 @@
+export const BOAT_TYPES = {
+  VIKING: "Viking",
+  SUPERPANGA: "Superpanga",
+  SPORT_FISHER: "Sport Fisher",
+  SPORT_FISHING_BOAT: "Sport Fishing Boat",
+  LUXURY_YACHT: "Luxury Yacht",
+} as const;
+
+export const BOAT_TYPE_TABS = {
+  VIKINGS_SPORT_FISHERS: [BOAT_TYPES.VIKING, BOAT_TYPES.SPORT_FISHER],
+  SUPERPANGAS: [BOAT_TYPES.SUPERPANGA],
+  SPORT_FISHING_BOATS: [BOAT_TYPES.SPORT_FISHING_BOAT],
+} as const;

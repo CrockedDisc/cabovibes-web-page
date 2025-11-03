@@ -52,13 +52,13 @@ export const serviceTimeSlotsRelations = relations(serviceTimeSlots, ({one, many
 }));
 
 export const boatsRelations = relations(boats, ({one, many}) => ({
-	partner: one(partners, {
-		fields: [boats.partnerId],
-		references: [partners.id]
-	}),
-	boatsMedias: many(boatsMedia),
-	boatPlanPrices: many(boatPlanPrices),
-	locationDepartures: many(locationDepartures),
+    partner: one(partners, {
+        fields: [boats.partnerId],
+        references: [partners.id]
+    }),
+    media: many(boatsMedia),
+    planPrices: many(boatPlanPrices),
+    locationDepartures: many(locationDepartures),
 }));
 
 export const partnersRelations = relations(partners, ({many}) => ({

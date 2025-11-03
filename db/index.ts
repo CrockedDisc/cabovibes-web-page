@@ -2,9 +2,19 @@ import "dotenv/config";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
+import * as relations from "./relations";
 
 const client = postgres(process.env.DATABASE_URL_SESSION!, {
   prepare: false,
 });
 
-export const db = drizzle(client, { schema, casing: 'snake_case' });
+export const db = drizzle(client, {
+  schema: {
+    ...schema,
+    ...relations,
+  },
+  casing: "snake_case",
+});
+
+export * from './schema';
+export * from './relations';
