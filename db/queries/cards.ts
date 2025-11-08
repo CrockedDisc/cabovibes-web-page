@@ -1,18 +1,20 @@
-import { db, boatsMedia, plans, services } from "@/db";
+import { db, boatsMedia, boats } from "@/db";
 import { CardData } from "@/lib/types/app";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 type GetToursParams = {
-  planName?: string;
+  planNames?: readonly string[];
   serviceName?: string;
 };
 
 export async function getToursForCards(
   params: GetToursParams = {}
 ): Promise<CardData[]> {
-  const { planName = "Standard", serviceName } = params;
+  const planNames = params.planNames ?? ["Standard", "Standard Half Day"];
+  const { serviceName } = params;
 
   const tours = await db.query.boats.findMany({
+    where: eq(boats.isActive, true),
     columns: {
       id: true,
       name: true,
@@ -20,6 +22,7 @@ export async function getToursForCards(
       capacity: true,
       isPopular: true,
       type: true,
+      isActive: true,
     },
     with: {
       media: {
@@ -55,7 +58,7 @@ export async function getToursForCards(
   return tours
     .map((boat) => {
       const targetPlanPrice = boat.planPrices.find((pp) => {
-        const matchesPlan = pp.plan?.name === planName;
+        const matchesPlan = planNames.includes(pp.plan?.name ?? "");
         const matchesService =
           !serviceName || pp.plan?.service?.name === serviceName;
         return matchesPlan && matchesService;

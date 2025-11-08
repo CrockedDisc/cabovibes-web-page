@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { inter } from "./fonts";
 import "./globals.css";
 import Navbar from "../components/Navbar";
+import { Toaster } from "../components/ui/sonner";
 import Footer from "../components/Footer";
 
 export const metadata: Metadata = {
@@ -94,6 +95,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.variable}>
         <Navbar />
+        <Toaster />
         <main className="pt-20 px-4 md:px-8 lg:px-16 max-w-7xl mx-auto space-y-24">
           {children}
         </main>

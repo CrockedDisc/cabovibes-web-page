@@ -16,3 +16,45 @@ export type CardData = {
   planName: string;
   serviceName: string;
 };
+
+export type TourData = {
+  id: number;
+  name: string;
+  size: string;
+  capacity: number;
+  features: string | null;
+  type: string;
+  
+  // Media
+  media: string[];
+  
+  // Locations
+  locations: string[];
+
+  itinerary: string;
+  
+  // Plans (filtrado por servicio)
+  plans: Array<{
+    id: number;
+    planName: string;
+    planDescription: string;
+    basePrice: string;
+    freePax: number;
+    pricePerPerson: string | null;
+    duration: string;
+    amenities: Array<{
+      id: number;
+      name: string;
+      isIncluded: boolean;
+    }>;
+  }>;
+  
+  // Time slots
+  timeSlots: Array<{
+    id: number;
+    name: string;
+    startTime: string;
+    endTime: string;
+  }>;
+};
+

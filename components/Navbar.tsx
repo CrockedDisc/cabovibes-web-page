@@ -17,12 +17,8 @@ import {
   NavigationMenuContent,
 } from "./ui/navigation-menu";
 import { Button } from "./ui/button";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "./ui/input-group";
+import { Badge } from "./ui/badge";
+import { useReservationStore } from "@/lib/stores/reservation-store";
 import {
   Sheet,
   SheetContent,
@@ -30,22 +26,47 @@ import {
   SheetHeader,
   SheetTitle,
 } from "./ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
 import { Separator } from "./ui/separator";
 import { Toggle } from "./ui/toggle";
 
-import { Search, ShoppingCart, Globe, Menu } from "lucide-react";
+import { ArrowUpRight, ShoppingCart, Globe, Menu } from "lucide-react";
 
 import { SERVICE_ITEMS, NAV_LINKS } from "@/constants";
+import CartSummary from "./CartSummary";
+import CartItem from "./CartItem";
+import { ScrollArea } from "./ui/scroll-area";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "./ui/drawer";
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const isDesktop = useMediaQuery("(min-width: 769px)");
+  const cartItems = useReservationStore((state) => state.items);
 
   useEffect(() => {
-    if (!isMobile && isOpen) {
+    if (isDesktop && isOpen) {
       setIsOpen(false);
     }
-  }, [isMobile, isOpen]);
+
+    if (isMobile && isDialogOpen) {
+      setIsDialogOpen(false);
+    }
+  }, [isDesktop, isMobile, isOpen, isDialogOpen]);
 
   const handleLinkClick = () => {
     setIsOpen(false);
@@ -130,9 +151,43 @@ function Navbar() {
             </Toggle>
           </NavigationMenuItem>
           <NavigationMenuItem className="hidden md:block">
-            <Button size="icon" aria-label="View shopping cart">
-              <ShoppingCart aria-hidden="true" />
-            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  size="icon"
+                  aria-label="View shopping cart"
+                  className="relative"
+                >
+                  <ShoppingCart aria-hidden="true" />
+                  {cartItems.length > 0 && (
+                    <Badge
+                      variant="secondary"
+                      className="absolute -top-1/6 -right-1/6 border border-muted-foreground"
+                    >
+                      {cartItems.length}
+                    </Badge>
+                  )}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="lg:max-w-[768px]">
+                <DialogHeader>
+                  <DialogTitle>Shopping Cart</DialogTitle>
+                </DialogHeader>
+                <div className="flex flex-col gap-4">
+                  <div className="col-span-3 flex flex-col gap-2">
+                    {cartItems.map((item) => (
+                      <CartItem key={item.id} item={item} />
+                    ))}
+                  </div>
+                </div>
+                <DialogFooter className="flex flex-row sm:justify-between items-center">
+                  <span className="text-sm font-semibold">Total: {cartItems.reduce((total, item) => total + item.subtotal, 0)}</span>
+                <Button asChild>
+                    <Link href="/checkout">Go to Checkout<ArrowUpRight className="h-4 w-4" /></Link>
+                </Button>
+              </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -198,13 +253,37 @@ function Navbar() {
                     </Toggle>
                   </li>
                   <li>
-                    <Button
-                      className="w-full justify-start"
-                      aria-label="View shopping cart"
-                    >
-                      <ShoppingCart aria-hidden="true" />
-                      My Cart
-                    </Button>
+                    <Drawer>
+                      <DrawerTrigger asChild>
+                        <Button
+                          className="w-full justify-between"
+                          aria-label="View shopping cart"
+                        >
+                          <div className="flex flex-row items-center gap-2">
+                            <ShoppingCart aria-hidden="true" />
+                            My Cart
+                          </div>
+                          {cartItems.length > 0 && (
+                            <Badge variant="secondary">
+                              {cartItems.length}
+                            </Badge>
+                          )}
+                        </Button>
+                      </DrawerTrigger>
+                      <DrawerContent>
+                        <DrawerHeader>
+                          <DrawerTitle>Shopping Cart</DrawerTitle>
+                        </DrawerHeader>
+                        <div className="flex flex-col gap-4">
+                          <div className="flex flex-col gap-2">
+                            {cartItems.map((item) => (
+                              <CartItem key={item.id} item={item} />
+                            ))}
+                          </div>
+                          <CartSummary items={cartItems} />
+                        </div>
+                      </DrawerContent>
+                    </Drawer>
                   </li>
                 </ul>
               </SheetContent>

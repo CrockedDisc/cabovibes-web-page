@@ -7,23 +7,16 @@ import {
   timestamp,
   numeric,
   text,
-  time,
+  index,
   boolean,
+  time,
   check,
   serial,
-  index,
   primaryKey,
   pgEnum,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
-export const mediaType = pgEnum("media_type", ["video", "image"]);
-export const reservationStatus = pgEnum("reservation_status", [
-  "pending",
-  "confirmed",
-  "cancelled",
-  "completed",
-]);
 export const boatType = pgEnum("boat_type", [
   "Viking",
   "Superpanga",
@@ -31,17 +24,26 @@ export const boatType = pgEnum("boat_type", [
   "Sport Fishing Boat",
   "Luxury Yacht",
 ]);
+export const mediaType = pgEnum("media_type", ["video", "image"]);
+export const reservationStatus = pgEnum("reservation_status", [
+  "pending",
+  "confirmed",
+  "cancelled",
+  "completed",
+]);
 
 export const amenities = pgTable(
   "Amenities",
   {
-    id: integer().primaryKey().generatedByDefaultAsIdentity({
-      name: "Amenities_id_seq",
-      startWith: 1,
-      increment: 1,
-      minValue: 1,
-      maxValue: 2147483647,
-    }),
+    id: integer()
+      .primaryKey()
+      .generatedByDefaultAsIdentity({
+        name: "Amenities_id_seq",
+        startWith: 1,
+        increment: 1,
+        minValue: 1,
+        maxValue: 2147483647,
+      }),
     name: varchar().notNull(),
   },
   (table) => [unique("Amenities_id_key").on(table.id)]
@@ -50,13 +52,15 @@ export const amenities = pgTable(
 export const reservationItems = pgTable(
   "Reservation_Items",
   {
-    id: integer().primaryKey().generatedByDefaultAsIdentity({
-      name: "Reservation_Items_id_seq",
-      startWith: 1,
-      increment: 1,
-      minValue: 1,
-      maxValue: 2147483647,
-    }),
+    id: integer()
+      .primaryKey()
+      .generatedByDefaultAsIdentity({
+        name: "Reservation_Items_id_seq",
+        startWith: 1,
+        increment: 1,
+        minValue: 1,
+        maxValue: 2147483647,
+      }),
     reservationId: integer("reservation_id").notNull(),
     boatPlanPriceId: integer("boat_plan_price_id").notNull(),
     serviceTimeSlotId: integer("service_time_slot_id").notNull(),
@@ -95,22 +99,29 @@ export const reservationItems = pgTable(
 export const boats = pgTable(
   "Boats",
   {
-    id: integer().primaryKey().generatedByDefaultAsIdentity({
-      name: "Boats_id_seq",
-      startWith: 1,
-      increment: 1,
-      minValue: 1,
-      maxValue: 2147483647,
-    }),
+    id: integer()
+      .primaryKey()
+      .generatedByDefaultAsIdentity({
+        name: "Boats_id_seq",
+        startWith: 1,
+        increment: 1,
+        minValue: 1,
+        maxValue: 2147483647,
+      }),
     name: varchar().notNull(),
     partnerId: integer("partner_id").notNull(),
     size: numeric().notNull(),
     capacity: integer().notNull(),
     features: text(),
     isPopular: boolean("is_popular").default(false).notNull(),
-    type: boatType("type").default("Luxury Yacht").notNull(),
+    type: boatType().default("Luxury Yacht").notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
   },
   (table) => [
+    index("idx_boats_is_active").using(
+      "btree",
+      table.isActive.asc().nullsLast().op("bool_ops")
+    ),
     foreignKey({
       columns: [table.partnerId],
       foreignColumns: [partners.id],
@@ -123,13 +134,15 @@ export const boats = pgTable(
 export const partners = pgTable(
   "Partners",
   {
-    id: integer().primaryKey().generatedByDefaultAsIdentity({
-      name: "Partners_id_seq",
-      startWith: 1,
-      increment: 1,
-      minValue: 1,
-      maxValue: 2147483647,
-    }),
+    id: integer()
+      .primaryKey()
+      .generatedByDefaultAsIdentity({
+        name: "Partners_id_seq",
+        startWith: 1,
+        increment: 1,
+        minValue: 1,
+        maxValue: 2147483647,
+      }),
     name: varchar().notNull(),
     email: varchar(),
     phoneNumber: varchar("phone_number"),
@@ -140,13 +153,15 @@ export const partners = pgTable(
 export const serviceTimeSlots = pgTable(
   "Service_Time_Slots",
   {
-    id: integer().primaryKey().generatedByDefaultAsIdentity({
-      name: "Service_Time_Slots_id_seq",
-      startWith: 1,
-      increment: 1,
-      minValue: 1,
-      maxValue: 2147483647,
-    }),
+    id: integer()
+      .primaryKey()
+      .generatedByDefaultAsIdentity({
+        name: "Service_Time_Slots_id_seq",
+        startWith: 1,
+        increment: 1,
+        minValue: 1,
+        maxValue: 2147483647,
+      }),
     serviceId: integer("service_id").notNull(),
     name: varchar().notNull(),
     startTime: time("start_time").notNull(),
@@ -165,13 +180,15 @@ export const serviceTimeSlots = pgTable(
 export const boatsMedia = pgTable(
   "Boats_Media",
   {
-    id: integer().primaryKey().generatedByDefaultAsIdentity({
-      name: "Boats_Media_id_seq",
-      startWith: 1,
-      increment: 1,
-      minValue: 1,
-      maxValue: 2147483647,
-    }),
+    id: integer()
+      .primaryKey()
+      .generatedByDefaultAsIdentity({
+        name: "Boats_Media_id_seq",
+        startWith: 1,
+        increment: 1,
+        minValue: 1,
+        maxValue: 2147483647,
+      }),
     boatId: integer("boat_id").notNull(),
     mediaUrl: text("media_url").notNull(),
     mediaType: mediaType("media_type").notNull(),
@@ -190,13 +207,15 @@ export const boatsMedia = pgTable(
 export const services = pgTable(
   "Services",
   {
-    id: integer().primaryKey().generatedByDefaultAsIdentity({
-      name: "Services_id_seq",
-      startWith: 1,
-      increment: 1,
-      minValue: 1,
-      maxValue: 2147483647,
-    }),
+    id: integer()
+      .primaryKey()
+      .generatedByDefaultAsIdentity({
+        name: "Services_id_seq",
+        startWith: 1,
+        increment: 1,
+        minValue: 1,
+        maxValue: 2147483647,
+      }),
     name: varchar().notNull(),
     description: text().notNull(),
   },
@@ -206,13 +225,15 @@ export const services = pgTable(
 export const planAmenities = pgTable(
   "Plan_Amenities",
   {
-    id: integer().primaryKey().generatedByDefaultAsIdentity({
-      name: "Plan_Amenities_id_seq",
-      startWith: 1,
-      increment: 1,
-      minValue: 1,
-      maxValue: 2147483647,
-    }),
+    id: integer()
+      .primaryKey()
+      .generatedByDefaultAsIdentity({
+        name: "Plan_Amenities_id_seq",
+        startWith: 1,
+        increment: 1,
+        minValue: 1,
+        maxValue: 2147483647,
+      }),
     boatPlanPriceId: integer("boat_plan_price_id").notNull(),
     amenityId: integer("amenity_id").notNull(),
     isIncluded: boolean("is_included").notNull(),
@@ -271,13 +292,15 @@ export const payments = pgTable(
 export const boatPlanPrices = pgTable(
   "Boat_Plan_Prices",
   {
-    id: integer().primaryKey().generatedByDefaultAsIdentity({
-      name: "Boat_Plan_Prices_id_seq",
-      startWith: 1,
-      increment: 1,
-      minValue: 1,
-      maxValue: 2147483647,
-    }),
+    id: integer()
+      .primaryKey()
+      .generatedByDefaultAsIdentity({
+        name: "Boat_Plan_Prices_id_seq",
+        startWith: 1,
+        increment: 1,
+        minValue: 1,
+        maxValue: 2147483647,
+      }),
     boatId: integer("boat_id").notNull(),
     planId: integer("plan_id"),
     basePrice: numeric("base_price").notNull(),
@@ -303,13 +326,15 @@ export const boatPlanPrices = pgTable(
 export const reservations = pgTable(
   "Reservations",
   {
-    id: integer().primaryKey().generatedByDefaultAsIdentity({
-      name: "Reservation_id_seq",
-      startWith: 1,
-      increment: 1,
-      minValue: 1,
-      maxValue: 2147483647,
-    }),
+    id: integer()
+      .primaryKey()
+      .generatedByDefaultAsIdentity({
+        name: "Reservation_id_seq",
+        startWith: 1,
+        increment: 1,
+        minValue: 1,
+        maxValue: 2147483647,
+      }),
     guestName: varchar("guest_name"),
     guestLastname: varchar("guest_lastname"),
     guestPhone1: varchar("guest_phone_1"),
@@ -334,13 +359,15 @@ export const reservations = pgTable(
 export const plans = pgTable(
   "Plans",
   {
-    id: integer().primaryKey().generatedByDefaultAsIdentity({
-      name: "Plans_id_seq",
-      startWith: 1,
-      increment: 1,
-      minValue: 1,
-      maxValue: 2147483647,
-    }),
+    id: integer()
+      .primaryKey()
+      .generatedByDefaultAsIdentity({
+        name: "Plans_id_seq",
+        startWith: 1,
+        increment: 1,
+        minValue: 1,
+        maxValue: 2147483647,
+      }),
     serviceId: integer("service_id").notNull(),
     name: varchar().notNull(),
     description: text().notNull(),
@@ -356,13 +383,15 @@ export const plans = pgTable(
 );
 
 export const locations = pgTable("Locations", {
-  id: integer().primaryKey().generatedByDefaultAsIdentity({
-    name: "Locations_id_seq",
-    startWith: 1,
-    increment: 1,
-    minValue: 1,
-    maxValue: 2147483647,
-  }),
+  id: integer()
+    .primaryKey()
+    .generatedByDefaultAsIdentity({
+      name: "Locations_id_seq",
+      startWith: 1,
+      increment: 1,
+      minValue: 1,
+      maxValue: 2147483647,
+    }),
   name: varchar().notNull(),
 });
 

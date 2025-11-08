@@ -6,6 +6,7 @@ import { getToursForCards } from "@/db/queries/cards";
 import TourCard from "@/components/TourCard";
 import { CardData } from "@/lib/types/app";
 import { BOAT_TYPE_TABS } from "@/constants/boats";
+import { PLAN_GROUPS } from "@/constants/plans";
 import {
   Carousel,
   CarouselContent,
@@ -26,7 +27,12 @@ const TAB_CONFIG: Array<{
 ];
 
 async function page() {
-  const tours: CardData[] = await getToursForCards();
+  const tours: CardData[] = await getToursForCards(
+    {
+      planNames: PLAN_GROUPS.BASE_PLANS,
+      serviceName: "Sport Fishing",
+    }
+  );
   return (
     <>
       <Header

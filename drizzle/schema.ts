@@ -1,6 +1,7 @@
-import { pgTable, unique, integer, varchar, foreignKey, timestamp, numeric, text, time, boolean, check, serial, index, primaryKey, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, unique, integer, varchar, foreignKey, timestamp, numeric, text, index, boolean, time, check, serial, primaryKey, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
+export const boatType = pgEnum("boat_type", ['Viking', 'Superpanga', 'Sport Fisher', 'Sport Fishing Boat', 'Luxury Yacht'])
 export const mediaType = pgEnum("media_type", ['video', 'image'])
 export const reservationStatus = pgEnum("reservation_status", ['pending', 'confirmed', 'cancelled', 'completed'])
 
@@ -54,7 +55,11 @@ export const boats = pgTable("Boats", {
 	size: numeric().notNull(),
 	capacity: integer().notNull(),
 	features: text(),
+	isPopular: boolean("is_popular").default(false).notNull(),
+	type: boatType().default('Luxury Yacht').notNull(),
+	isActive: boolean("is_active").default(true).notNull(),
 }, (table) => [
+	index("idx_boats_is_active").using("btree", table.isActive.asc().nullsLast().op("bool_ops")),
 	foreignKey({
 			columns: [table.partnerId],
 			foreignColumns: [partners.id],

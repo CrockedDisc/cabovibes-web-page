@@ -59,6 +59,7 @@ export const boatsRelations = relations(boats, ({one, many}) => ({
     media: many(boatsMedia),
     planPrices: many(boatPlanPrices),
     locationDepartures: many(locationDepartures),
+    departures: many(locationDepartures), // Alias para compatibilidad
 }));
 
 export const partnersRelations = relations(partners, ({many}) => ({
@@ -67,6 +68,7 @@ export const partnersRelations = relations(partners, ({many}) => ({
 
 export const servicesRelations = relations(services, ({many}) => ({
 	serviceTimeSlots: many(serviceTimeSlots),
+	timeSlots: many(serviceTimeSlots), // Alias para compatibilidad
 	plans: many(plans),
 }));
 
