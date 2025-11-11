@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
           },
         ],
       },
-      prefer: 'return=minimal',
+      prefer: 'return=representation',
     };
     // El segundo argumento (prefer) puede pasarse en un options object si es necesario
     const { result: order } = await ordersController.createOrder(collect);

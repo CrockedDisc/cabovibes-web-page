@@ -20,7 +20,9 @@ function SubmitPayment({ isPaying }: { isPaying: boolean }) {
 
   const handleClick = async () => {
     if (!cardFieldsForm) {
-      alert("Los campos de tarjeta no están disponibles. Verifica la configuración de PayPal.");
+      alert(
+        "Los campos de tarjeta no están disponibles. Verifica la configuración de PayPal."
+      );
       return;
     }
     try {
@@ -29,9 +31,10 @@ function SubmitPayment({ isPaying }: { isPaying: boolean }) {
         alert("Por favor completa todos los campos de la tarjeta.");
         return;
       }
+      console.log("Card state before submit:", state.cards); // Muestra { number: { brand: 'visa' } }
       await cardFieldsForm.submit();
-    } catch {
-      alert("Error al procesar el pago con tarjeta. Intenta de nuevo.");
+    } catch (error: any) {
+      console.error("Error al procesar el pago con tarjeta:", error);
     }
   };
 
@@ -56,15 +59,24 @@ export default function PayPalCheckout({
   const createOrder = async () => {
     setLoading(true);
     try {
+      console.log("🔵 createOrder - Enviando cartItems:", cartItems);
+      
       const response = await fetch("/api/paypal/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cartItems }),
       });
+      
       const data = await response.json();
+      console.log("🔵 createOrder - Order ID creado:", data.id);
+      
       if (!response.ok) throw new Error(data.error || "Failed to create order");
+      if (!data.id) throw new Error("No se recibió order ID");
+      
       return data.id;
     } catch (error) {
+      console.error("🔴 Error en createOrder:", error);
+      setLoading(false);
       onError(error);
       throw error;
     } finally {
@@ -72,22 +84,67 @@ export default function PayPalCheckout({
     }
   };
 
-  const onApprove = async ({ orderID }: any) => {
+  // ✅ Para PayPalButtons (async, con actions)
+  const onApproveButtons = async (data: any, actions: any) => {
     setLoading(true);
     try {
-      const response = await fetch("/api/paypal/capture-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderID }),
-      });
-      const details = await response.json();
-      if (!response.ok) throw new Error(details.error || "Failed to capture order");
-      onSuccess(details);
+      console.log("🟢 onApproveButtons - Data:", data);
+      const orderID = data.orderID;
+      
+      if (!orderID) {
+        throw new Error("No orderID en PayPal Buttons");
+      }
+
+      await captureOrder(orderID);
     } catch (error) {
+      console.error("🔴 Error en onApproveButtons:", error);
       onError(error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // ✅ Para Card Fields (NO async, solo data)
+  const onApproveCardFields = (data: { orderID: string }) => {
+    console.log("🟢 onApproveCardFields - Data:", data);
+    console.log("🟢 onApproveCardFields - orderID:", data.orderID);
+    
+    if (!data.orderID) {
+      console.error("🔴 No orderID en Card Fields");
+      onError(new Error("No orderID received from Card Fields"));
+      return;
+    }
+
+    // Llamar a captureOrder de forma asíncrona pero sin await
+    setLoading(true);
+    captureOrder(data.orderID)
+      .catch((error) => {
+        console.error("🔴 Error en onApproveCardFields:", error);
+        onError(error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  // Función auxiliar para capturar la orden
+  const captureOrder = async (orderID: string) => {
+    console.log("🟢 captureOrder - Capturando orderID:", orderID);
+    
+    const response = await fetch("/api/paypal/capture-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderID }),
+    });
+    
+    const details = await response.json();
+    console.log("🟢 captureOrder - Response:", details);
+    
+    if (!response.ok) {
+      throw new Error(details.error || "Failed to capture order");
+    }
+    
+    onSuccess(details);
   };
 
   return (
@@ -98,7 +155,7 @@ export default function PayPalCheckout({
         intent: "capture",
         components: "buttons,card-fields",
         enableFunding: "card",
-        debug: process.env.NODE_ENV === "development",
+        debug: true,
       }}
     >
       <div className="space-y-6">
@@ -114,25 +171,29 @@ export default function PayPalCheckout({
             }}
             disabled={loading}
             createOrder={createOrder}
-            onApprove={onApprove}
+            onApprove={onApproveButtons}
             onError={onError}
           />
         </div>
+
         {/* Separador */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">O paga con tarjeta</span>
+            <span className="px-2 bg-white text-gray-500">
+              O paga con tarjeta
+            </span>
           </div>
         </div>
+
         {/* Card Fields */}
         <div>
           <h3 className="text-lg font-semibold mb-3">Pagar con Tarjeta</h3>
           <PayPalCardFieldsProvider
             createOrder={createOrder}
-            onApprove={onApprove}
+            onApprove={onApproveCardFields}
             onError={onError}
           >
             <PayPalCardFieldsForm />
@@ -143,3 +204,4 @@ export default function PayPalCheckout({
     </PayPalScriptProvider>
   );
 }
+
