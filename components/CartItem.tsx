@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Card,
   CardContent,
@@ -7,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { AspectRatio } from "./ui/aspect-ratio";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReservationItem as ReservationItemType } from "@/lib/stores/reservation-store";
@@ -29,10 +27,10 @@ function CartItem({ item }: { item: ReservationItemType }) {
   );
 
   return (
-    <Card className="flex flex-row w-full gap-2 lg:gap-4 py-2">
-      <CardHeader className="w-40 p-4 items-center">
+    <Card className="flex flex-col sm:flex-row w-full gap-2 lg:gap-4 py-2">
+      <CardHeader className="w-full sm:w-40 p-4 items-center">
         <Link href={`/tours/${item.id}`}>
-          <AspectRatio ratio={1 / 1} className="relative overflow-hidden rounded-sm">
+          <div className="aspect-[4/3] sm:aspect-square relative overflow-hidden rounded-sm">
             {item.boatImage ? (
               <Image
                 src={item.boatImage}
@@ -42,19 +40,23 @@ function CartItem({ item }: { item: ReservationItemType }) {
                 priority
               />
             ) : (
-              <div className="aspect-square w-full rounded-sm flex items-center justify-center bg-muted">
-                <span className="text-muted-foreground">No image</span>
+              <div className="w-full h-full rounded-sm flex items-center justify-center bg-muted">
+                <span className="text-muted-foreground text-xs">No image</span>
               </div>
             )}
-          </AspectRatio>
+          </div>
         </Link>
       </CardHeader>
-      <CardContent className="flex flex-col sm:flex-row justify-between w-full px-2 lg:px-6">
-        <div className="flex flex-col gap-2 justify-center">
-          <CardTitle className="text-sm md:text-base">{item.boatName}</CardTitle>
+      <CardContent className="flex flex-col sm:flex-row sm:justify-between w-full px-6 sm:px-2 lg:px-6 gap-4 sm:gap-0">
+        <div className="flex flex-row sm:flex-col gap-2 justify-start sm:justify-center">
+          <CardTitle className="text-sm md:text-base">
+            {item.boatName}
+          </CardTitle>
           <CardDescription className="flex flex-row sm:flex-col gap-2">
             {item.planName}
-            <span className="text-sm font-semibold">${item.subtotal.toFixed(2)}</span>
+            <span className="text-sm font-semibold">
+              ${item.subtotal.toFixed(2)}
+            </span>
           </CardDescription>
         </div>
         <div className="flex flex-col gap-2 justify-center">
@@ -70,10 +72,18 @@ function CartItem({ item }: { item: ReservationItemType }) {
           </span>
         </div>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="">
         <Button
           size="icon"
           variant="ghost"
+          className="hidden sm:flex"
+          onClick={() => removeFromCart(item.id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+                <Button
+          variant="secondary"
+          className="flex sm:hidden w-full"
           onClick={() => removeFromCart(item.id)}
         >
           <Trash2 className="h-4 w-4" />

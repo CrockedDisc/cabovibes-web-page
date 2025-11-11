@@ -101,42 +101,64 @@ export default function BookingSidebar({
     return reservedDates.includes(dateStr);
   };
 
-  const handleAddToCart = () => {
-    if (!selectedDate || !selectedPlan || !selectedTimeSlot) {
-      alert("Please select all options");
-      return;
-    }
+const handleAddToCart = () => {
+  if (!selectedDate || !selectedPlan || !selectedTimeSlot) {
+    alert("Please select all options");
+    return;
+  }
 
-    const item = {
-      id: uuidv4(),
-      boatId: tourId,
-      boatPlanPriceId,
-      boatName: tourData.name,
-      boatImage: tourData.media[0] || null,
-      planName: currentPlan?.planName || "Unknown",
-      selectedDate,
-      timeSlot: currentTimeSlot!,
-      people,
-      freePax: currentPlan?.freePax || 0,
-      basePrice: parseFloat(currentPlan?.basePrice || "0"),
-      pricePerPerson: parseFloat(currentPlan?.pricePerPerson || "0"),
-      subtotal,
-    };
+  // ✅ Obtener items actuales del carrito
+  const currentItems = useReservationStore.getState().items;
 
-    addToCart(item);
+  // ✅ Validar si ya existe el mismo tour con fecha, plan y hora
+  const isDuplicate = currentItems.some((cartItem) => {
+    const isSameBoat = cartItem.boatId === tourId;
+    const isSameDate = new Date(cartItem.selectedDate).toDateString() === selectedDate.toDateString();
+    const isSameTime = cartItem.timeSlot.id === selectedTimeSlot;
+    return isSameBoat && isSameDate && isSameTime;
+  });
 
-    toast.success("Item added to cart", {
+  // ✅ Si es duplicado, mostrar error
+  if (isDuplicate) {
+    toast.error("This tour is already in your cart", {
       position: "top-center",
-      className: "justify-between",
-      action: {
-        label: "Undo",
-        onClick: () => removeFromCart(item.id),
-        actionButtonStyle: {
-          borderRadius: "24px !important",
-        },
-      },
-    })
+      description: "You can't book the same tour twice for the same date and time",
+      descriptionClassName: "!text-secondary-foreground/60",
+    });
+    return;
+  }
+
+  const item = {
+    id: uuidv4(),
+    boatId: tourId,
+    boatPlanPriceId,
+    boatName: tourData.name,
+    boatImage: tourData.media[0] || null,
+    planName: currentPlan?.planName || "Unknown",
+    selectedDate,
+    timeSlot: currentTimeSlot!,
+    people,
+    freePax: currentPlan?.freePax || 0,
+    basePrice: parseFloat(currentPlan?.basePrice || "0"),
+    pricePerPerson: parseFloat(currentPlan?.pricePerPerson || "0"),
+    subtotal,
   };
+
+  addToCart(item);
+
+  toast.success("Item added to cart", {
+    position: "top-center",
+    className: "justify-between",
+    action: {
+      label: "Undo",
+      onClick: () => removeFromCart(item.id),
+      actionButtonStyle: {
+        borderRadius: "24px !important",
+      },
+    },
+  });
+};
+
 
   // ✅ Loading state
   if (loading) {

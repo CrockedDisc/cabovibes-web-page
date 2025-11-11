@@ -9,9 +9,6 @@ import Image from "next/image";
 import { getTourDetails } from "@/db/queries/tours";
 import { notFound } from "next/navigation";
 import BookingSidebar from "@/components/BookingSidebar";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { ShoppingBag } from "lucide-react";
 
 type Props = {
   params: Promise<{ id: string }>;
