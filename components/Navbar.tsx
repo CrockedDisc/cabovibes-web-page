@@ -96,8 +96,8 @@ function Navbar() {
             .toFixed(2)}{" "}
           USD
         </span>
-        <Button asChild onClick={handleCloseCart}>
-          <Link href="/checkout">
+        <Button asChild onClick={handleCloseCart} disabled={cartItems.length === 0}>
+          <Link href="/checkout/form">
             Go to Checkout
             <ArrowUpRight className="h-4 w-4" />
           </Link>

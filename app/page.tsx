@@ -202,21 +202,29 @@ export default function Home() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/40 to-foreground/70 rounded-md" />
           <div className="absolute inset-0 flex items-center justify-center z-10">
-            <div className="text-left text-background px-4 flex flex-row gap-4 items-center justify-between">
+            <div className="text-left text-background px-2 sm:px-4 flex flex-row items-center justify-between w-full">
               <h2
                 id="cta"
                 className="text-lg sm:text-3xl md:text-5xl font-bold"
               >
                 Discover Your Dream Vacation
               </h2>
-              <Button>
-                <Book />
-                Book Now
-              </Button>
-              <Button>
-                <PhoneOutgoing />
-                Call Us
-              </Button>
+              <div className="flex flex-row gap-4 px-2">
+                <Button className="hidden sm:flex">
+                  <Book />
+                  Book Now
+                </Button>
+                <Button className="hidden sm:flex">
+                  <PhoneOutgoing />
+                  Call Us
+                </Button>
+                <Button className="flex sm:hidden" size="icon">
+                  <Book />
+                </Button>
+                <Button className="flex sm:hidden" size="icon">
+                  <PhoneOutgoing />
+                </Button>
+              </div>
             </div>
           </div>
         </AspectRatio>
