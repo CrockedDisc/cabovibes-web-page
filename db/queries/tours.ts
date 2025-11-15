@@ -1,18 +1,17 @@
 // db/queries/tour-complete.ts
 import { db, boats, boatsMedia } from "@/db";
-import { eq, and} from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { TourData } from "@/lib/types/app";
-
 
 export async function getTourDetails(
   tourId: number,
-  serviceName: string
+  serviceName?: string // ✅ Hacerlo opcional
 ): Promise<TourData | null> {
   // 1. Obtener datos del bote con todas las relaciones
   const tour = await db.query.boats.findFirst({
-        where: and(
+    where: and(
       eq(boats.id, tourId),
-      eq(boats.isActive, true)  // ✅ Solo si está activo
+      eq(boats.isActive, true)
     ),
     columns: {
       id: true,
@@ -98,10 +97,17 @@ export async function getTourDetails(
 
   if (!tour) return null;
 
-  // Filtrar planes que pertenecen al servicio especificado
-  const servicePlans = tour.planPrices.filter(
-    (pp) => pp.plan?.service?.name === serviceName
-  );
+  // ✅ Filtrar planes: si se proporciona serviceName, filtrar por ese servicio
+  // Si no, tomar el primer servicio disponible
+  const servicePlans = serviceName
+    ? tour.planPrices.filter((pp) => pp.plan?.service?.name === serviceName)
+    : tour.planPrices.filter((pp) => pp.plan?.service?.name === tour.planPrices[0]?.plan?.service?.name);
+
+  // Si no hay planes después del filtro, devolver null
+  if (servicePlans.length === 0) return null;
+
+  // ✅ Obtener el nombre del servicio actual
+  const currentServiceName = servicePlans[0]?.plan?.service?.name ?? "";
 
   // Obtener time slots (son los mismos para todos los planes del servicio)
   const timeSlots =
@@ -119,6 +125,7 @@ export async function getTourDetails(
     capacity: tour.capacity,
     features: tour.features,
     type: tour.type,
+    serviceName: currentServiceName, // ✅ Agregar el nombre del servicio
     media: tour.media.map((m) => m.mediaUrl),
     locations: tour.departures.map((d) => d.location.name),
     itinerary: servicePlans[0]?.plan?.service?.description ?? "",
@@ -137,6 +144,5 @@ export async function getTourDetails(
       })),
     })),
     timeSlots,
-    
   };
 }

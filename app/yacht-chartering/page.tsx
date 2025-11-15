@@ -8,15 +8,15 @@ import TourCard from "@/components/TourCard";
 async function page() {
   const tours: CardData[] = await getToursForCards({
     planNames: PLAN_GROUPS.BASE_PLANS,
-    serviceName: "Sunset & Ballena",
+    serviceName: "Yacht Chartering",
   });
   return (
     <>
       <Header
         ratio={16 / 9}
-        image="/images/what-are-you-interested-in/sunset-ballena.jpg"
-        ariaLabel="Sunset & Ballena"
-        title="Sunset & Ballena"
+        image="/images/what-are-you-interested-in/yacht-chartering.jpg"
+        ariaLabel="Yacht Chartering"
+        title="Yacht Chartering"
         description="..."
       />
       <section>

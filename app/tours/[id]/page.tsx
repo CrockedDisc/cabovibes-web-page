@@ -1,3 +1,4 @@
+// app/tours/[id]/page.tsx
 import {
   Carousel,
   CarouselContent,
@@ -9,8 +10,10 @@ import Image from "next/image";
 import { getTourDetails } from "@/db/queries/tours";
 import { notFound } from "next/navigation";
 import BookingSidebar from "@/components/BookingSidebar";
+import ContactCard from "@/components/ContactCard"; // ✅ Nuevo componente
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import { MoveHorizontal } from "lucide-react";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -18,11 +21,18 @@ type Props = {
 
 async function page({ params }: Props) {
   const { id } = await params;
-  const TourDetails = await getTourDetails(Number(id), "Sport Fishing");
+  
+  // ✅ Primero obtenemos el tour para saber su servicio
+  const TourDetails = await getTourDetails(Number(id));
 
   if (!TourDetails) {
     return notFound();
   }
+
+  // ✅ Determinar qué componente mostrar según el servicio
+  const showBookingSidebar = TourDetails.serviceName === "Sport Fishing" || 
+                             TourDetails.serviceName === "Sunset & Ballenas";
+  const showContactCard = TourDetails.serviceName === "Yacht Chartering";
 
   return (
     <div className="flex lg:flex-row flex-col gap-4 lg:gap-16 w-full">
@@ -51,6 +61,10 @@ async function page({ params }: Props) {
             <CarouselPrevious className="hidden lg:flex" />
             <CarouselNext className="hidden lg:flex" />
           </Carousel>
+          <span className="text-muted-foreground text-xs">
+            <MoveHorizontal className="h-4 w-4" />
+            Swipe to see more
+          </span>
         </header>
 
         <section className="flex w-full gap-2 md:gap-4 flex-col">
@@ -73,11 +87,17 @@ async function page({ params }: Props) {
       </div>
 
       <aside className="flex flex-col lg:w-96">
-        <BookingSidebar
-          tourData={TourDetails}
-          tourId={Number(id)}
-          boatPlanPriceId={TourDetails.plans[0].id}
-        />
+        {/* ✅ Mostrar BookingSidebar solo para ciertos servicios */}
+        {showBookingSidebar && (
+          <BookingSidebar
+            tourData={TourDetails}
+            tourId={Number(id)}
+            boatPlanPriceId={TourDetails.plans[0].id}
+          />
+        )}
+
+        {/* ✅ Mostrar ContactCard para Yacht Chartering */}
+        {showContactCard && <ContactCard />}
       </aside>
     </div>
   );

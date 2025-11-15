@@ -24,6 +24,7 @@ export type TourData = {
   capacity: number;
   features: string | null;
   type: string;
+  serviceName: string;
   
   // Media
   media: string[];
