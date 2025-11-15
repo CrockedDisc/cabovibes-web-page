@@ -9,7 +9,8 @@ import Image from "next/image";
 import { getTourDetails } from "@/db/queries/tours";
 import { notFound } from "next/navigation";
 import BookingSidebar from "@/components/BookingSidebar";
-import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -26,14 +27,15 @@ async function page({ params }: Props) {
   return (
     <div className="flex lg:flex-row flex-col gap-4 lg:gap-16 w-full">
       <div className="flex flex-col gap-4 flex-1">
-        <header className="">
-          <Carousel className="">
-            {" "}
-            {/* Removí flex flex-col, ya que aspect-video maneja el ratio */}
+        <header>
+          <Carousel>
             <CarouselContent>
               {TourDetails.media.map((mediaUrl, index) => (
-                <CarouselItem key={mediaUrl} className="max-w-[768px]">
-                  <AspectRatio ratio={16 / 9} className="rounded-md overflow-hidden">
+                <CarouselItem key={mediaUrl} className="max-w-7xl">
+                  <AspectRatio
+                    ratio={16 / 9}
+                    className="rounded-md overflow-hidden"
+                  >
                     <Image
                       src={mediaUrl}
                       alt={TourDetails.name}
@@ -43,7 +45,6 @@ async function page({ params }: Props) {
                       className="object-cover"
                     />
                   </AspectRatio>
-
                 </CarouselItem>
               ))}
             </CarouselContent>
@@ -59,19 +60,19 @@ async function page({ params }: Props) {
           <span className="text-base md:text-xl font-semibold">
             {TourDetails.size} feets
           </span>
-          <p className="text-base md:text-xl font-normal">
-            {TourDetails.features}
-          </p>
+          <div className="text-base md:text-xl font-normal">
+            <MarkdownRenderer content={TourDetails.features || ""} />
+          </div>
+
           <span className="text-lg md:text-2xl font-bold">Itinerary</span>
-          <p className="text-base md:text-xl font-normal">
-            {TourDetails.itinerary}
-          </p>
+
+          <div className="text-base md:text-xl font-normal">
+            <MarkdownRenderer content={TourDetails.itinerary || ""} />
+          </div>
         </section>
       </div>
 
       <aside className="flex flex-col lg:w-96">
-        {" "}
-        {/* ✅ Define ancho fijo para sidebar */}
         <BookingSidebar
           tourData={TourDetails}
           tourId={Number(id)}

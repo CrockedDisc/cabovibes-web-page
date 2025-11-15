@@ -25,7 +25,7 @@ export default function Home() {
   return (
     <>
       <header className="relative" aria-labelledby="hero-title">
-        <AspectRatio ratio={16 / 9}>
+        <AspectRatio ratio={16 / 9} className="max-w-7xl">
           <video
             src="/videos/hero.mp4"
             autoPlay

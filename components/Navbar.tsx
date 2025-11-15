@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 import {
   NavigationMenu,
@@ -54,6 +55,9 @@ function Navbar() {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const isDesktop = useMediaQuery("(min-width: 769px)");
   const cartItems = useReservationStore((state) => state.items);
+  const pathname = usePathname();
+
+  const isOnPaymentPage = pathname === "/checkout/payment";
 
   // ✅ Cerrar menú cuando se agranda la pantalla
   useEffect(() => {
@@ -96,11 +100,24 @@ function Navbar() {
             .toFixed(2)}{" "}
           USD
         </span>
-        <Button asChild onClick={handleCloseCart} disabled={cartItems.length === 0}>
-          <Link href="/checkout/form">
-            Go to Checkout
-            <ArrowUpRight className="h-4 w-4" />
-          </Link>
+        <Button
+          asChild={!isOnPaymentPage} // ✅ Solo usar asChild si NO estamos en payment
+          onClick={handleCloseCart}
+          disabled={cartItems.length === 0 || isOnPaymentPage} // ✅ Deshabilitar en payment
+        >
+          {isOnPaymentPage ? (
+            // ✅ Si estamos en payment, renderiza botón normal (sin Link)
+            <>
+              Go to Checkout
+              <ArrowUpRight className="h-4 w-4" />
+            </>
+          ) : (
+            // ✅ Si NO estamos en payment, renderiza con Link
+            <Link href="/checkout/payment">
+              Go to Checkout
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          )}
         </Button>
       </div>
     </>

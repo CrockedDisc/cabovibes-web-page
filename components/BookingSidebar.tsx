@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {Skeleton} from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TourData } from "@/lib/types/app";
 import { fetchReservedDates } from "@/app/actions/reservations";
 import { useReservationStore } from "@/lib/stores/reservation-store";
@@ -41,16 +41,18 @@ export default function BookingSidebar({
   tourId,
   boatPlanPriceId,
 }: Props) {
-    const sortedPlans = useMemo(
-    () => tourData.plans.sort((a, b) => parseFloat(a.basePrice) - parseFloat(b.basePrice)),
+  const sortedPlans = useMemo(
+    () =>
+      tourData.plans.sort(
+        (a, b) => parseFloat(a.basePrice) - parseFloat(b.basePrice)
+      ),
     [tourData.plans]
   );
+
   // ✅ Estados
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedPlan, setSelectedPlan] = useState<number | undefined>();
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<
-    number | undefined
-  >();
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<number | undefined>();
   const [people, setPeople] = useState(tourData.capacity);
   const [reservedDates, setReservedDates] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -101,64 +103,72 @@ export default function BookingSidebar({
     return reservedDates.includes(dateStr);
   };
 
-const handleAddToCart = () => {
-  if (!selectedDate || !selectedPlan || !selectedTimeSlot) {
-    alert("Please select all options");
-    return;
-  }
+  const handleAddToCart = () => {
+    if (!selectedDate || !selectedPlan || !selectedTimeSlot) {
+      toast.error("Please select all required fields", {
+        position: "top-center",
+        description: "Make sure to pick a date, plan, and time slot",
+        descriptionClassName: "!text-secondary-foreground/60",
+      });
+      return;
+    }
 
-  // ✅ Obtener items actuales del carrito
-  const currentItems = useReservationStore.getState().items;
+    // ✅ Obtener items actuales del carrito
+    const currentItems = useReservationStore.getState().items;
 
-  // ✅ Validar si ya existe el mismo tour con fecha, plan y hora
-  const isDuplicate = currentItems.some((cartItem) => {
-    const isSameBoat = cartItem.boatId === tourId;
-    const isSameDate = new Date(cartItem.selectedDate).toDateString() === selectedDate.toDateString();
-    const isSameTime = cartItem.timeSlot.id === selectedTimeSlot;
-    return isSameBoat && isSameDate && isSameTime;
-  });
-
-  // ✅ Si es duplicado, mostrar error
-  if (isDuplicate) {
-    toast.error("This tour is already in your cart", {
-      position: "top-center",
-      description: "You can't book the same tour twice for the same date and time",
-      descriptionClassName: "!text-secondary-foreground/60",
+    // ✅ Validar si ya existe el mismo tour con fecha, plan y hora
+    const isDuplicate = currentItems.some((cartItem) => {
+      const isSameBoat = cartItem.boatId === tourId;
+      const isSameDate =
+        new Date(cartItem.selectedDate).toDateString() ===
+        selectedDate.toDateString();
+      const isSameTime = cartItem.timeSlot.id === selectedTimeSlot;
+      return isSameBoat && isSameDate && isSameTime;
     });
-    return;
-  }
 
-  const item = {
-    id: uuidv4(),
-    boatId: tourId,
-    boatPlanPriceId,
-    boatName: tourData.name,
-    boatImage: tourData.media[0] || null,
-    planName: currentPlan?.planName || "Unknown",
-    selectedDate,
-    timeSlot: currentTimeSlot!,
-    people,
-    freePax: currentPlan?.freePax || 0,
-    basePrice: parseFloat(currentPlan?.basePrice || "0"),
-    pricePerPerson: parseFloat(currentPlan?.pricePerPerson || "0"),
-    subtotal,
-  };
+    // ✅ Si es duplicado, mostrar error
+    if (isDuplicate) {
+      toast.error("This tour is already in your cart", {
+        position: "top-center",
+        description:
+          "You can't book the same tour twice for the same date and time",
+        descriptionClassName: "!text-secondary-foreground/60",
+      });
+      return;
+    }
 
-  addToCart(item);
+    const item = {
+      id: uuidv4(),
+      boatId: tourId,
+      boatPlanPriceId,
+      boatName: tourData.name,
+      boatImage: tourData.media[0] || null,
+      planName: currentPlan?.planName || "Unknown",
+      selectedDate,
+      timeSlot: currentTimeSlot!,
+      people,
+      freePax: currentPlan?.freePax || 0,
+      basePrice: parseFloat(currentPlan?.basePrice || "0"),
+      pricePerPerson: parseFloat(currentPlan?.pricePerPerson || "0"),
+      subtotal,
+      locationId: 1, // ✅ AGREGADO - Por defecto location ID 1 (puedes hacerlo dinámico después)
+      notes: '', // ✅ AGREGADO - Notas vacías por defecto
+    };
 
-  toast.success("Item added to cart", {
-    position: "top-center",
-    className: "justify-between",
-    action: {
-      label: "Undo",
-      onClick: () => removeFromCart(item.id),
-      actionButtonStyle: {
-        borderRadius: "24px !important",
+    addToCart(item);
+
+    toast.success("Item added to cart", {
+      position: "top-center",
+      className: "justify-between",
+      action: {
+        label: "Undo",
+        onClick: () => removeFromCart(item.id),
+        actionButtonStyle: {
+          borderRadius: "24px !important",
+        },
       },
-    },
-  });
-};
-
+    });
+  };
 
   // ✅ Loading state
   if (loading) {

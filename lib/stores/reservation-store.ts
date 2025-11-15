@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 export type ReservationItem = {
-  id: string; // UUID o timestamp
+  id: string;
   boatId: number;
   boatPlanPriceId: number;
   boatName: string;
@@ -16,33 +16,44 @@ export type ReservationItem = {
   basePrice: number;
   pricePerPerson: number;
   subtotal: number;
+  locationId: number;
+  notes?: string;
+};
+
+export type CheckoutData = {
+  name: string;
+  lastname: string;
+  email: string;
+  phones: { phone: string }[];
+  hotel?: string;
+  reservation_number?: string;
+  room_number?: string;
+  medic_note?: string;
 };
 
 interface ReservationStore {
   items: ReservationItem[];
+  checkoutData: CheckoutData | null;
+  isCheckoutComplete: boolean;
 
-  // Agregar al carrito
   addToCart: (
     item: Omit<ReservationItem, "selectedDate"> & { selectedDate: Date }
   ) => void;
-
-  // Remover del carrito
   removeFromCart: (id: string) => void;
-
-  // Actualizar cantidad de personas
   updatePeople: (id: string, people: number) => void;
-
-  // Obtener total
   getTotal: () => number;
-
-  // Limpiar carrito
   clearCart: () => void;
+  setCheckoutData: (data: CheckoutData) => void;
+  setCheckoutComplete: (complete: boolean) => void;
+  clearReservation: () => void;
 }
 
 export const useReservationStore = create<ReservationStore>()(
   persist(
     (set, get) => ({
       items: [],
+      checkoutData: null,
+      isCheckoutComplete: false,
 
       addToCart: (item) =>
         set((state) => ({
@@ -50,7 +61,9 @@ export const useReservationStore = create<ReservationStore>()(
             ...state.items,
             {
               ...item,
-              selectedDate: item.selectedDate.toISOString(), // ✅ Convertir Date a string
+              selectedDate: item.selectedDate.toISOString(),
+              // ✅ Asegurar que notes tenga un valor por defecto si no viene
+              notes: item.notes || '',
             },
           ],
         })),
@@ -79,6 +92,17 @@ export const useReservationStore = create<ReservationStore>()(
       },
 
       clearCart: () => set({ items: [] }),
+
+      setCheckoutData: (data) => set({ checkoutData: data }),
+
+      setCheckoutComplete: (complete) => set({ isCheckoutComplete: complete }),
+
+      clearReservation: () =>
+        set({
+          items: [],
+          checkoutData: null,
+          isCheckoutComplete: false,
+        }),
     }),
     {
       name: "cart-storage",

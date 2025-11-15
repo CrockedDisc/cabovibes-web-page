@@ -12,8 +12,13 @@ import type { ReservationItem as ReservationItemType } from "@/lib/stores/reserv
 import { Calendar, Clock, UsersRound, Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { useReservationStore } from "@/lib/stores/reservation-store";
+import { usePathname } from "next/navigation";
 
 function CartItem({ item }: { item: ReservationItemType }) {
+  const pathname = usePathname();
+
+  const isOnPaymentPage = pathname === "/checkout/payment";
+
   const removeFromCart = useReservationStore((state) => state.removeFromCart);
 
   const formattedDate = new Date(item.selectedDate).toLocaleDateString(
@@ -78,13 +83,15 @@ function CartItem({ item }: { item: ReservationItemType }) {
           variant="ghost"
           className="hidden sm:flex"
           onClick={() => removeFromCart(item.id)}
+          disabled={isOnPaymentPage}
         >
           <Trash2 className="h-4 w-4" />
         </Button>
-                <Button
+        <Button
           variant="secondary"
           className="flex sm:hidden w-full"
           onClick={() => removeFromCart(item.id)}
+          disabled={isOnPaymentPage}
         >
           <Trash2 className="h-4 w-4" />
         </Button>
