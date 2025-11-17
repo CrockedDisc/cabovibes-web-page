@@ -7,7 +7,7 @@ import TourCard from "@/components/TourCard";
 
 async function page() {
   const tours: CardData[] = await getToursForCards({
-    planNames: PLAN_GROUPS.BASE_PLANS,
+    planNames: ["Sunset & Ballena"],
     serviceName: "Sunset & Ballena",
   });
   return (

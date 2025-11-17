@@ -49,32 +49,45 @@ export default function BookingSidebar({
     [tourData.plans]
   );
 
-  // ✅ Estados
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
-  const [selectedPlan, setSelectedPlan] = useState<number | undefined>();
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<number | undefined>();
+  // ✅ CAMBIO: Inicializar selectedPlan con el primer plan
+  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedPlan, setSelectedPlan] = useState<number>(sortedPlans[0]?.id); // ✅ Inicializar
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<number>();
   const [people, setPeople] = useState(tourData.capacity);
   const [reservedDates, setReservedDates] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  console.log("🟢 BookingSidebar mounted");
+  console.log("🟢 Loading:", loading);
+  console.log("🟢 Selected plan:", selectedPlan);
+  console.log("🟢 Tour data:", tourData.name);
 
   const addToCart = useReservationStore((state) => state.addToCart);
   const removeFromCart = useReservationStore((state) => state.removeFromCart);
 
-  // ✅ Fetch fechas reservadas usando Server Action
+  // ✅ CAMBIO: Actualizar el useEffect
   useEffect(() => {
     async function loadReservedDates() {
+      if (!selectedPlan) {
+        setLoading(false); // ✅ Importante: setear loading = false si no hay plan
+        return;
+      }
+      
+      setLoading(true);
       try {
-        const dates = await fetchReservedDates(boatPlanPriceId);
+        console.log("🔵 Loading reserved dates for plan:", selectedPlan);
+        const dates = await fetchReservedDates(selectedPlan);
+        console.log("🔵 Reserved dates loaded:", dates.length);
         setReservedDates(dates.map((d) => d.date));
       } catch (error) {
-        console.error("Error loading reserved dates:", error);
+        console.error("❌ Error loading reserved dates:", error);
       } finally {
         setLoading(false);
       }
     }
 
     loadReservedDates();
-  }, [boatPlanPriceId]);
+  }, [selectedPlan]);
 
   // ✅ Obtenemos datos derivados
   const currentPlan = tourData.plans.find((p) => p.id === selectedPlan);
@@ -172,12 +185,22 @@ export default function BookingSidebar({
 
   // ✅ Loading state
   if (loading) {
+    console.log("⚠️ Showing skeleton because loading is true");
     return (
-      <div className="flex flex-col gap-4 w-full">
-        <Skeleton className="w-[607px] h-[1326px] md:w-[959px] md:h-[759px] lg:w-[298px] lg:h-[1069px]" />
-      </div>
+      <Card className="sticky top-20">
+        <CardHeader>
+          <Skeleton className="h-8 w-3/4" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </CardContent>
+      </Card>
     );
   }
+
+  console.log("✅ Rendering full BookingSidebar");
 
   return (
     <>

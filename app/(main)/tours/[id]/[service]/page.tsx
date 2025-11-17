@@ -14,25 +14,46 @@ import ContactCard from "@/components/ContactCard"; // ✅ Nuevo componente
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { MoveHorizontal } from "lucide-react";
+import { SERVICE_SLUG_MAP, unslugifyService } from "@/lib/utils/slugify";
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; service: string }>; // ← Agregar service aquí
 };
 
 async function page({ params }: Props) {
-  const { id } = await params;
-  
-  // ✅ Primero obtenemos el tour para saber su servicio
-  const TourDetails = await getTourDetails(Number(id));
+  const { id, service: serviceSlug } = await params;
+
+  const serviceName =
+    SERVICE_SLUG_MAP[serviceSlug] || unslugifyService(serviceSlug);
+
+  console.log("🔵 Service:", serviceName); // Para debug
+
+  const TourDetails = await getTourDetails(Number(id), serviceName);
 
   if (!TourDetails) {
     return notFound();
   }
 
-  // ✅ Determinar qué componente mostrar según el servicio
-  const showBookingSidebar = TourDetails.serviceName === "Sport Fishing" || 
-                             TourDetails.serviceName === "Sunset & Ballenas";
+  const firstPlanId = TourDetails?.plans[0]?.id || 1;
+
+  // 🔍 LOGS DE DEBUG
+  console.log("🔵 TourDetails.serviceName:", TourDetails.serviceName);
+  console.log("🔵 Type:", typeof TourDetails.serviceName);
+  console.log("🔵 Trimmed:", TourDetails.serviceName.trim());
+  console.log(
+    "🔵 Char codes:",
+    Array.from(TourDetails.serviceName).map((c) => c.charCodeAt(0))
+  );
+
+  const showBookingSidebar =
+    TourDetails.serviceName === "Sport Fishing" ||
+    TourDetails.serviceName === "Sunset & Ballena";
+
   const showContactCard = TourDetails.serviceName === "Yacht Chartering";
+
+  console.log("🔵 showBookingSidebar:", showBookingSidebar);
+  console.log("🔵 showContactCard:", showContactCard);
+  console.log("🔵 About to render, checking conditions...");
 
   return (
     <div className="flex lg:flex-row flex-col gap-4 lg:gap-16 w-full">
@@ -87,17 +108,25 @@ async function page({ params }: Props) {
       </div>
 
       <aside className="flex flex-col lg:w-96">
-        {/* ✅ Mostrar BookingSidebar solo para ciertos servicios */}
         {showBookingSidebar && (
-          <BookingSidebar
-            tourData={TourDetails}
-            tourId={Number(id)}
-            boatPlanPriceId={TourDetails.plans[0].id}
-          />
+          <>
+            <BookingSidebar
+              tourData={TourDetails}
+              tourId={Number(id)}
+              boatPlanPriceId={firstPlanId}
+            />
+          </>
         )}
 
-        {/* ✅ Mostrar ContactCard para Yacht Chartering */}
-        {showContactCard && <ContactCard />}
+        {showContactCard && (
+          <>
+            <ContactCard />
+          </>
+        )}
+
+        {!showBookingSidebar && !showContactCard && (
+          <p className="font-bold">No sidebar to show</p>
+        )}
       </aside>
     </div>
   );

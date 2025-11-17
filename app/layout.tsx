@@ -1,9 +1,8 @@
-import type { Metadata } from "next";
-import { inter } from "./fonts";
-import "./globals.css";
-import Navbar from "../components/Navbar";
-import { Toaster } from "../components/ui/sonner";
-import Footer from "../components/Footer";
+// app/layout.tsx
+import type { Metadata } from "next"
+import { inter } from "./fonts"
+import "./globals.css"
+import { Toaster } from "@/components/ui/sonner"
 
 export const metadata: Metadata = {
   title: {
@@ -28,12 +27,12 @@ export const metadata: Metadata = {
   creator: "Cabovibes",
   publisher: "Cabovibes",
   
-  metadataBase: new URL("https://www.cabovibes.tours"), // Change this
+  metadataBase: new URL("https://www.cabovibes.tours"),
   alternates: {
     canonical: "/",
     languages: {
       "en-US": "/en",
-      "es-MX": "/es", // Check this
+      "es-MX": "/es",
     },
   },
   
@@ -47,13 +46,13 @@ export const metadata: Metadata = {
       "Experience unforgettable adventures in Los Cabos with premium sport fishing, yacht charters, and sunset cruises. Book your dream vacation today.",
     images: [
       {
-        url: "/images/og-image.jpg", 
+        url: "/images/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Cabovibes - Los Cabos Yacht Tours and Sport Fishing",
       },
       {
-        url: "/images/og-image-square.jpg", 
+        url: "/images/og-image-square.jpg",
         width: 800,
         height: 800,
         alt: "Cabovibes Logo",
@@ -66,8 +65,8 @@ export const metadata: Metadata = {
     title: "Cabovibes | Los Cabos Yacht Tours & Sport Fishing",
     description:
       "Premium sport fishing, yacht charters, and sunset cruises in Los Cabos. Book your adventure today!",
-    creator: "@cabovibes", 
-    images: ["/images/twitter-card.jpg"], 
+    creator: "@cabovibes",
+    images: ["/images/twitter-card.jpg"],
   },
   
   robots: {
@@ -84,23 +83,19 @@ export const metadata: Metadata = {
   
   category: "tourism",
   classification: "Business",
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en">
       <body className={inter.variable}>
-        <Navbar />
         <Toaster />
-        <main className="pt-20 px-4 md:px-8 lg:px-16 max-w-7xl mx-auto space-y-24">
-          {children}
-        </main>
-        <Footer />
+        {children}
       </body>
     </html>
-  );
+  )
 }

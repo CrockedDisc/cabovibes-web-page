@@ -10,7 +10,7 @@ type GetToursParams = {
 export async function getToursForCards(
   params: GetToursParams = {}
 ): Promise<CardData[]> {
-  const planNames = params.planNames ?? ["Standard", "Standard Half Day"];
+  const planNames = params.planNames ?? ["Standard", "Standard Half Day", "Sunset & Ballena"];
   const { serviceName } = params;
 
   const tours = await db.query.boats.findMany({

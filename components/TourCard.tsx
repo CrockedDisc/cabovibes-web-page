@@ -14,17 +14,19 @@ import { CardData } from "@/lib/types/app";
 import { UsersRound, Clock, ArrowUpRight } from "lucide-react";
 import { formatDuration } from "../lib/utils/format";
 import Link from "next/link";
+import { SERVICE_NAME_TO_SLUG, slugifyService } from "../lib/utils/slugify";
 
 type Props = {
   tour: CardData;
 };
 
 function TourCard({ tour }: Props) {
+  const serviceSlug = SERVICE_NAME_TO_SLUG[tour.serviceName] || slugifyService(tour.serviceName);
   return (
     <article className="flex aspect-auto sm:aspect-9/16">
       <Card className="w-full shadow-none">
         <CardHeader>
-          <Link href={`/tours/${tour.id}`}>
+          <Link href={`/tours/${tour.id}/${serviceSlug}`}>
             {tour.image ? (
               <Image
                 src={tour.image}
@@ -61,7 +63,7 @@ function TourCard({ tour }: Props) {
         <CardFooter className="flex justify-center">
           <CardAction>
             <Button asChild>
-              <Link href={`/tours/${tour.id}`}>
+              <Link href={`/tours/${tour.id}/${serviceSlug}`}>
                 Book now <ArrowUpRight className="h-4 w-4" />
               </Link>
             </Button>
