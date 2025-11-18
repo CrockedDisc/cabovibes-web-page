@@ -29,6 +29,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "./ui/input";
 import { Plus, Minus, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
+import PlanComparisonDialog from "./PlanComparisonDialog";
 
 type Props = {
   tourData: TourData;
@@ -48,6 +49,8 @@ export default function BookingSidebar({
       ),
     [tourData.plans]
   );
+
+  const shouldShowPlanComparison = tourData.serviceName !== "Sunset & Ballena";
 
   // ✅ CAMBIO: Inicializar selectedPlan con el primer plan
   const [selectedDate, setSelectedDate] = useState<Date>();
@@ -72,7 +75,7 @@ export default function BookingSidebar({
         setLoading(false); // ✅ Importante: setear loading = false si no hay plan
         return;
       }
-      
+
       setLoading(true);
       try {
         console.log("🔵 Loading reserved dates for plan:", selectedPlan);
@@ -165,7 +168,7 @@ export default function BookingSidebar({
       pricePerPerson: parseFloat(currentPlan?.pricePerPerson || "0"),
       subtotal,
       locationId: 1, // ✅ AGREGADO - Por defecto location ID 1 (puedes hacerlo dinámico después)
-      notes: '', // ✅ AGREGADO - Notas vacías por defecto
+      notes: "", // ✅ AGREGADO - Notas vacías por defecto
     };
 
     addToCart(item);
@@ -240,9 +243,15 @@ export default function BookingSidebar({
           </div>
           <div className="flex w-full flex-col gap-4">
             <div className="flex flex-col gap-2 md:gap-4">
-              <h3 className="text-base md:text-lg font-semibold">
-                Select a Plan
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base md:text-lg font-semibold">
+                  Select a Plan
+                </h3>
+                {shouldShowPlanComparison && (
+                  <PlanComparisonDialog plans={tourData.plans} />
+                )}
+              </div>
+
               <RadioGroup
                 value={selectedPlan?.toString()}
                 onValueChange={(val) => setSelectedPlan(parseInt(val))}

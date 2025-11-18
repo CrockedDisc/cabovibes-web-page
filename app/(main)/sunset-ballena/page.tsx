@@ -17,7 +17,7 @@ async function page() {
         image="/images/what-are-you-interested-in/sunset-ballena.jpg"
         ariaLabel="Sunset & Ballena"
         title="Sunset & Ballena"
-        description="..."
+        description="Experience an unforgettable Los Cabos sunset as you cruise along the coast with golden skies and views of the Arch. A perfect moment to relax, take photos, and enjoy the unique Pacific atmosphere."
       />
       <section>
         <h2 className="text-xl sm:text-3xl md:text-5xl font-bold">Our Fleet</h2>

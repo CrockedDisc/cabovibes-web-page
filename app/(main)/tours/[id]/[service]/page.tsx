@@ -59,7 +59,7 @@ async function page({ params }: Props) {
     <div className="flex lg:flex-row flex-col gap-4 lg:gap-16 w-full">
       <div className="flex flex-col gap-4 flex-1">
         <header>
-          <Carousel>
+          <Carousel className="mb-2">
             <CarouselContent>
               {TourDetails.media.map((mediaUrl, index) => (
                 <CarouselItem key={mediaUrl} className="max-w-7xl">

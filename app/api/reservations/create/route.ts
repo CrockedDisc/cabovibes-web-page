@@ -3,6 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { reservations, reservationItems } from "@/db/schema";
 
+// 📧 IMPORTAR RESEND + LA PLANTILLA
+import { render } from "@react-email/render";
+import { resend } from "@/lib/resend";
+import ReservationConfirmation from "@/emails/ReservationConfirmation";
+
 export async function POST(request: NextRequest) {
   try {
     const { paypalOrderId, checkoutData, cartItems } = await request.json();
@@ -103,6 +108,37 @@ export async function POST(request: NextRequest) {
     await db.insert(reservationItems).values(itemsToInsert);
 
     console.log(`✅ ${itemsToInsert.length} reservation items created`);
+
+    try {
+      console.log("📧 Enviando correo a:", reservation.guestEmail);
+
+      await resend.emails.send({
+        from: "booking@confirmation.cabovibes.tours",
+        to: [
+          reservation.guestEmail, // cliente
+          "contact@cabovibes.tours", // tu copia interna (o el correo que quieras)
+        ],
+        subject: "Your Reservation has been confirmed!🎣✨",
+        html: await render(
+          ReservationConfirmation({
+            name: reservation.guestName,
+            reservationId: reservation.id,
+            total: total,
+            items: cartItems.map((i: any) => ({
+              title: i.title,
+              people: i.people,
+              date: i.selectedDate,
+              time: `${i.timeSlot.startTime} - ${i.timeSlot.endTime}`,
+            })),
+          })
+        ),
+      });
+
+      console.log("📩 Email enviado correctamente");
+    } catch (emailError) {
+      console.error("❌ Error al enviar correo de confirmación:", emailError);
+      // Importante: NO rompemos el flujo. La reserva sigue creada.
+    }
 
     return NextResponse.json({
       success: true,

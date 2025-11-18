@@ -27,12 +27,10 @@ const TAB_CONFIG: Array<{
 ];
 
 async function page() {
-  const tours: CardData[] = await getToursForCards(
-    {
-      planNames: PLAN_GROUPS.BASE_PLANS,
-      serviceName: "Sport Fishing",
-    }
-  );
+  const tours: CardData[] = await getToursForCards({
+    planNames: PLAN_GROUPS.BASE_PLANS,
+    serviceName: "Sport Fishing",
+  });
   return (
     <>
       <Header
@@ -40,10 +38,13 @@ async function page() {
         image="/images/what-are-you-interested-in/sport-fishing.jpg"
         ariaLabel="Sport fishing"
         title="Sport Fishing"
-        description="..."
+        description="Enjoy sport fishing in Los Cabos with expert captains, pro-grade gear, and the thrill of catching marlin or dorado."
       />
       <section className="hidden sm:flex w-full flex-col">
-        <Tabs defaultValue="popular" className="w-full items-center justify-center gap-4">
+        <Tabs
+          defaultValue="popular"
+          className="w-full items-center justify-center gap-4"
+        >
           <TabsList>
             <TabsTrigger value="popular">Most Popular</TabsTrigger>
             {TAB_CONFIG.map(({ id, label }) => (

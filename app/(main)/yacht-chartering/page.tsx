@@ -17,7 +17,7 @@ async function page() {
         image="/images/what-are-you-interested-in/yacht-chartering.jpg"
         ariaLabel="Yacht Chartering"
         title="Yacht Chartering"
-        description="..."
+        description="Enjoy a luxury day in Los Cabos aboard a private yacht with personalized service, premium comfort, and stunning ocean views."
       />
       <section>
         <h2 className="text-xl sm:text-3xl md:text-5xl font-bold">Our Fleet</h2>
