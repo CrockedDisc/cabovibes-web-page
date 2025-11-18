@@ -34,8 +34,6 @@ export default function PayPalCheckout({
     setLoading(true);
 
     try {
-      console.log("🔵 createOrder - Enviando cartItems:", cartItems);
-
       const response = await fetch("/api/paypal/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -43,7 +41,6 @@ export default function PayPalCheckout({
       });
 
       const data = await response.json();
-      console.log("🔵 createOrder - Order ID creado:", data.id);
 
       if (!response.ok) throw new Error(data.error || "Failed to create order");
       if (!data.id) throw new Error("No se recibió order ID");
@@ -62,8 +59,6 @@ export default function PayPalCheckout({
   // CAPTURE ORDER
   // ---------------------------
   const captureOrder = async (orderID: string) => {
-    console.log("🟢 captureOrder - Capturando orderID:", orderID);
-
     const response = await fetch("/api/paypal/capture-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -71,10 +66,8 @@ export default function PayPalCheckout({
     });
 
     const details = await response.json();
-    console.log("🟢 captureOrder - Response:", details);
 
     if (!response.ok) {
-      console.error("❌ Capture error:", details);
       throw new Error(details.error || "Failed to capture order");
     }
 
@@ -89,8 +82,6 @@ export default function PayPalCheckout({
     setLoading(true);
 
     try {
-      console.log("🟢 onApprove - Data:", data);
-
       if (!data.orderID) {
         throw new Error("No orderID returned from PayPal");
       }

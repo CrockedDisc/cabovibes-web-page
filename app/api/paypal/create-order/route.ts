@@ -41,7 +41,6 @@ export async function POST(request: NextRequest) {
     const { result: order } = await ordersController.createOrder(collect);
     return NextResponse.json({ id: order.id });
   } catch (error: any) {
-    console.error('Error creating PayPal order:', error);
     return NextResponse.json(
       {
         error: error.message || 'Failed to create order',

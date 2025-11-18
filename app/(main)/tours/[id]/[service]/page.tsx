@@ -26,8 +26,6 @@ async function page({ params }: Props) {
   const serviceName =
     SERVICE_SLUG_MAP[serviceSlug] || unslugifyService(serviceSlug);
 
-  console.log("🔵 Service:", serviceName); // Para debug
-
   const TourDetails = await getTourDetails(Number(id), serviceName);
 
   if (!TourDetails) {
@@ -36,24 +34,11 @@ async function page({ params }: Props) {
 
   const firstPlanId = TourDetails?.plans[0]?.id || 1;
 
-  // 🔍 LOGS DE DEBUG
-  console.log("🔵 TourDetails.serviceName:", TourDetails.serviceName);
-  console.log("🔵 Type:", typeof TourDetails.serviceName);
-  console.log("🔵 Trimmed:", TourDetails.serviceName.trim());
-  console.log(
-    "🔵 Char codes:",
-    Array.from(TourDetails.serviceName).map((c) => c.charCodeAt(0))
-  );
-
   const showBookingSidebar =
     TourDetails.serviceName === "Sport Fishing" ||
     TourDetails.serviceName === "Sunset & Ballena";
 
   const showContactCard = TourDetails.serviceName === "Yacht Chartering";
-
-  console.log("🔵 showBookingSidebar:", showBookingSidebar);
-  console.log("🔵 showContactCard:", showContactCard);
-  console.log("🔵 About to render, checking conditions...");
 
   return (
     <div className="flex lg:flex-row flex-col gap-4 lg:gap-16 w-full">

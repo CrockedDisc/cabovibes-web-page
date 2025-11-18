@@ -12,12 +12,6 @@ export async function POST(request: NextRequest) {
   try {
     const { paypalOrderId, checkoutData, cartItems } = await request.json();
 
-    console.log("📝 Creating reservation:", {
-      paypalOrderId,
-      checkoutData,
-      itemCount: cartItems.length,
-    });
-
     if (
       !paypalOrderId ||
       !checkoutData ||
@@ -52,8 +46,6 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
-    console.log("✅ Reservation created:", reservation.id);
-
     const itemsToInsert = cartItems.map((item: any) => {
       // Obtener la fecha seleccionada (sin conversión a UTC)
       const selectedDate = new Date(item.selectedDate);
@@ -85,19 +77,12 @@ export async function POST(request: NextRequest) {
       const startTimeFormatted = formatTimestamp(startTime);
       const endTimeFormatted = formatTimestamp(endTime);
 
-      console.log("⏰ Time calculation:", {
-        selectedDate: item.selectedDate,
-        slot: `${item.timeSlot.startTime} - ${item.timeSlot.endTime}`,
-        calculatedStart: startTimeFormatted,
-        calculatedEnd: endTimeFormatted,
-      });
-
       return {
         reservationId: reservation.id,
         boatPlanPriceId: item.boatPlanPriceId,
         serviceTimeSlotId: item.timeSlot.id,
         locationId: item.locationId || 1,
-        startTime: startTimeFormatted, // ✅ "2025-11-15 13:30:00"
+        startTime: startTimeFormatted,
         endTime: endTimeFormatted, // ✅ "2025-11-15 19:00:00"
         pax: item.people,
         subtotal: item.subtotal.toString(),
@@ -107,11 +92,7 @@ export async function POST(request: NextRequest) {
 
     await db.insert(reservationItems).values(itemsToInsert);
 
-    console.log(`✅ ${itemsToInsert.length} reservation items created`);
-
     try {
-      console.log("📧 Enviando correo a:", reservation.guestEmail);
-
       await resend.emails.send({
         from: "booking@confirmation.cabovibes.tours",
         to: [
@@ -133,11 +114,7 @@ export async function POST(request: NextRequest) {
           })
         ),
       });
-
-      console.log("📩 Email enviado correctamente");
     } catch (emailError) {
-      console.error("❌ Error al enviar correo de confirmación:", emailError);
-      // Importante: NO rompemos el flujo. La reserva sigue creada.
     }
 
     return NextResponse.json({
@@ -153,11 +130,6 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error("❌ Error creating reservation:", error);
-    console.error("Error details:", {
-      message: error.message,
-      stack: error.stack,
-    });
 
     return NextResponse.json(
       {

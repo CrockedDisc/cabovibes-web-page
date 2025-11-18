@@ -53,8 +53,10 @@ export default function CheckoutPage() {
     (state) => state.isCheckoutComplete
   );
 
+  const [isProcessing, setIsProcessing] = useState(false);
+
   useEffect(() => {
-    if (cartItems.length === 0) {
+    if (cartItems.length === 0 && !isProcessing) { // ✅ Agregar && !isProcessing
       toast.error("Your cart is empty. Redirecting to home...", {
         position: "top-center",
       });
@@ -63,24 +65,9 @@ export default function CheckoutPage() {
         router.push("/");
       }, 1500);
 
-      // ✅ Limpia el timer solo cuando el componente se desmonte
       return () => clearTimeout(timer);
     }
-  }, [cartItems.length, router]); // ✅ Remueve isRedirecting de las dependencias
-
-  // ✅ Early return si el carrito está vacío
-  if (cartItems.length === 0) {
-    return (
-      <div className="container mx-auto p-4 text-center h-screen flex items-center justify-center">
-        <div className="flex flex-col gap-2">
-          <p className="text-muted-foreground">Your cart is empty</p>
-          <p className="text-sm text-muted-foreground">
-            Redirecting to home...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  }, [cartItems.length, router, isProcessing]); // ✅ Agregar isProcessing a las dependencias
 
   const form = useForm<CheckoutSchema>({
     resolver: zodResolver(checkoutSchema),
@@ -102,6 +89,20 @@ export default function CheckoutPage() {
     name: "phones",
   });
 
+  // ✅ Early return si el carrito está vacío Y NO estamos procesando
+  if (cartItems.length === 0 && !isProcessing) { // ✅ Agregar && !isProcessing
+    return (
+      <div className="container mx-auto p-4 text-center h-screen flex items-center justify-center">
+        <div className="flex flex-col gap-2">
+          <p className="text-muted-foreground">Your cart is empty</p>
+          <p className="text-sm text-muted-foreground">
+            Redirecting to home...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   function onSubmit(data: CheckoutSchema) {
     setCheckoutData(data); // Guarda los datos
     setCheckoutComplete(true); // Habilita el pago
@@ -111,88 +112,68 @@ export default function CheckoutPage() {
   }
 
   // ✅ Manejar el éxito del pago
-const handleSuccess = async (details: any) => {
-  console.log("💳 Payment successful:", details);
-  
-  // ✅ Mostrar loading
-  toast.loading("Creating your reservation...", {
-    id: "creating-reservation",
-    position: "top-center",
-  });
+  const handleSuccess = async (details: any) => {
+    // ✅ Prevenir múltiples ejecuciones
+    if (isProcessing) return;
 
-  try {
-    // ✅ Obtener datos del store
-    const checkoutData = useReservationStore.getState().checkoutData;
-    
-    console.log("📦 Checkout data:", checkoutData);
-    console.log("🛒 Cart items:", cartItems);
-    
-    if (!checkoutData) {
-      throw new Error("Checkout data not found. Please fill the form first.");
-    }
+    setIsProcessing(true);
 
-    // ✅ Log del payload ANTES de enviar
-    const payload = {
-      paypalOrderId: details.id,
-      checkoutData,
-      cartItems,
-    };
-    console.log("📤 Sending payload:", JSON.stringify(payload, null, 2));
-
-    // ✅ Crear la reserva en la base de datos
-    const response = await fetch("/api/reservations/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    console.log("📥 Response status:", response.status);
-    console.log("📥 Response ok:", response.ok);
-
-    // ✅ Leer el body ANTES de verificar si es ok
-    const data = await response.json();
-    console.log("📥 Response data:", data);
-
-    if (!response.ok) {
-      // ✅ Mostrar el error específico del servidor
-      throw new Error(data.error || `Server error: ${response.status}`);
-    }
-
-    console.log("✅ Reservation created:", data);
-
-    // ✅ Mostrar éxito
-    toast.success("Reservation created successfully!", {
+    toast.loading("Creating your reservation...", {
       id: "creating-reservation",
       position: "top-center",
     });
 
-    // ✅ Limpiar el carrito y datos de checkout
-    useReservationStore.getState().clearReservation();
-    
-    // ✅ Pequeño delay para que el usuario vea el mensaje
-    setTimeout(() => {
-      router.push(`/order-confirmation/${data.id}`);
-    }, 1000);
+    try {
+      const checkoutData = useReservationStore.getState().checkoutData;
 
-  } catch (error: any) {
-    console.error("❌ Error creating reservation:", error);
-    console.error("❌ Error stack:", error.stack);
-    
-    // ✅ Mostrar error específico
-    toast.error(
-      error.message || "Failed to create reservation",
-      {
+      if (!checkoutData) {
+        throw new Error("Checkout data not found. Please fill the form first.");
+      }
+
+      const payload = {
+        paypalOrderId: details.id,
+        checkoutData,
+        cartItems,
+      };
+
+      const response = await fetch("/api/reservations/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `Server error: ${response.status}`);
+      }
+
+      toast.success("Reservation created successfully!", {
+        id: "creating-reservation",
+        position: "top-center",
+      });
+
+      // ✅ Limpiar carrito (ahora isProcessing=true previene el redirect a home)
+      useReservationStore.getState().clearReservation();
+
+      // ✅ Redirigir inmediatamente (sin setTimeout)
+      router.push(`/order-confirmation/${data.id}`);
+      
+    } catch (error: any) {
+
+      toast.error(error.message || "Failed to create reservation", {
         id: "creating-reservation",
         position: "top-center",
         duration: 10000,
         description: `PayPal Order ID: ${details.id}. Please contact support.`,
-      }
-    );
-  }
-};
+      });
+
+      setIsProcessing(false); // ✅ Solo resetear en caso de error
+    }
+    // ✅ NO resetear isProcessing en caso de éxito - queremos que permanezca true
+  };
 
   const handleError = (error: any) => {
-    console.error("❌ Payment error:", error);
     toast.error("Payment failed. Please try again.", {
       position: "top-center",
     });
@@ -453,8 +434,8 @@ const handleSuccess = async (details: any) => {
                   {form.formState.isSubmitting
                     ? "Saving..."
                     : isCheckoutComplete
-                    ? "Update Information"
-                    : "Save & Continue to Payment"}
+                      ? "Update Information"
+                      : "Save & Continue to Payment"}
                 </Button>
               </Field>
             </CardFooter>
@@ -479,6 +460,18 @@ const handleSuccess = async (details: any) => {
           </CardContent>
         </Card>
       </aside>
+      {isProcessing && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl">
+            <p className="text-lg font-semibold mb-2">
+              Processing your reservation...
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Please don't close this window.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

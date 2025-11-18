@@ -60,11 +60,6 @@ export default function BookingSidebar({
   const [reservedDates, setReservedDates] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  console.log("🟢 BookingSidebar mounted");
-  console.log("🟢 Loading:", loading);
-  console.log("🟢 Selected plan:", selectedPlan);
-  console.log("🟢 Tour data:", tourData.name);
-
   const addToCart = useReservationStore((state) => state.addToCart);
   const removeFromCart = useReservationStore((state) => state.removeFromCart);
 
@@ -78,9 +73,7 @@ export default function BookingSidebar({
 
       setLoading(true);
       try {
-        console.log("🔵 Loading reserved dates for plan:", selectedPlan);
         const dates = await fetchReservedDates(selectedPlan);
-        console.log("🔵 Reserved dates loaded:", dates.length);
         setReservedDates(dates.map((d) => d.date));
       } catch (error) {
         console.error("❌ Error loading reserved dates:", error);
@@ -188,7 +181,6 @@ export default function BookingSidebar({
 
   // ✅ Loading state
   if (loading) {
-    console.log("⚠️ Showing skeleton because loading is true");
     return (
       <Card className="sticky top-20">
         <CardHeader>
@@ -202,8 +194,6 @@ export default function BookingSidebar({
       </Card>
     );
   }
-
-  console.log("✅ Rendering full BookingSidebar");
 
   return (
     <>

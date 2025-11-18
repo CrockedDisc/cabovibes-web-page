@@ -210,13 +210,17 @@ export default function Home() {
                 Discover Your Dream Vacation
               </h2>
               <div className="flex flex-row gap-4 px-2">
-                <Button className="hidden sm:flex">
-                  <Book />
-                  Book Now
+                <Button className="hidden sm:flex" asChild>
+                  <Link href="/sport-fishing">
+                    <Book />
+                    Book Now
+                  </Link>
                 </Button>
-                <Button className="hidden sm:flex">
-                  <PhoneOutgoing />
-                  Call Us
+                <Button className="hidden sm:flex" asChild>
+                  <Link href="/contact">
+                    <PhoneOutgoing />
+                    Call Us
+                  </Link>
                 </Button>
                 <Button className="flex sm:hidden" size="icon">
                   <Book />

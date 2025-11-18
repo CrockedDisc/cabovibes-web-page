@@ -62,13 +62,36 @@ function Footer() {
                 </Button>
               </Link>
             </li>
+            <li>
+              <Link href="/contact">
+                <Button
+                  variant="link"
+                  className="p-0 h-max text-md font-normal"
+                >
+                  Contact
+                </Button>
+              </Link>
+            </li>
+            <li>
+              <Link href="/gallery">
+                <Button
+                  variant="link"
+                  className="p-0 h-max text-md font-normal"
+                >
+                  Gallery
+                </Button>
+              </Link>
+            </li>
           </ul>
         </div>
         <div className="col-span-1 flex flex-col gap-4">
           <h2 className="text-xl font-bold">Location</h2>
           <ul className="flex flex-col gap-4">
             <li>
-              <Link href="https://maps.app.goo.gl/rQSoprNQ2r9v8m2S7" target="_blank">
+              <Link
+                href="https://maps.app.goo.gl/rQSoprNQ2r9v8m2S7"
+                target="_blank"
+              >
                 <Button
                   variant="link"
                   className="p-0 h-max text-md font-normal"
