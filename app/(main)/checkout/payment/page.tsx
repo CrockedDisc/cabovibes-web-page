@@ -1,5 +1,8 @@
-// app/checkout/page.tsx
+/// app/checkout/page.tsx
 "use client";
+
+// ✅ Agregar esta línea para indicar que la ruta es dinámica
+export const dynamic = 'force-dynamic';
 
 import PayPalCheckout from "@/components/PayPalCheckout";
 import { useReservationStore } from "@/lib/stores/reservation-store";

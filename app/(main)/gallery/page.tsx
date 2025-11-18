@@ -16,7 +16,7 @@ export default async function GalleryPage() {
     <>
       <Header
         ratio={16 / 9}
-        image="/images/gallery/gallery-header.JPG"
+        image="/images/gallery/gallery-header.jpg"
         ariaLabel="Gallery"
         title="Gallery"
         description="Explore our collection of unforgettable moments in Los Cabos"

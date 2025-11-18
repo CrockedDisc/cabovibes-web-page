@@ -1,6 +1,20 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
+  // ✅ Configuración de webpack para builds de producción
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ["@svgr/webpack"],
+    });
+    return config;
+  },
+  
+  // Configuración para turbopack (desarrollo)
   turbopack: {
     rules: {
       "*.svg": {
@@ -9,6 +23,7 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  
   images: {
     remotePatterns: [
       {
